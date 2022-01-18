@@ -10,7 +10,9 @@ pipeline {
         }
         stage("run") {
             when {
-                branch '*/main'
+                expression {
+                    return env.GIT_BRANCH == "origin/main"
+                }
             }
             steps {
                 sh """
