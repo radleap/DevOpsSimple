@@ -10,7 +10,7 @@ pipeline {
         }
         stage("run") {
             when {
-                branch 'main'
+                branch '*/main'
             }
             steps {
                 sh """
