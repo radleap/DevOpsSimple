@@ -4,24 +4,24 @@ pipeline {
         DOCKERHUB_CREDS=credentials('dockerhub-credentials')
     }
     stages {
-        stage("build") {
+        stage("Building image") {
             steps {
                 sh """
-                    docker build -t radleap/hello_there:latest .
+                    docker build -t $DOCKERHUB_CREDS_USR/hello_there:latest .
                 """
             }
         }
-        stage('Login') {
+        stage('Login into Dockerhub') {
             steps {
                 sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin'
             }
         }
-        stage('Push') {
+        stage('Pushing to Dockerhub') {
             steps {
-                sh 'docker push radleap/hello_there:latest'
+                sh 'docker push $DOCKERHUB_CREDS_USR/hello_there:latest'
             }
         }
-        stage("run") {
+        stage("Running") {
             when {
                 expression {
                     return env.GIT_BRANCH == "origin/main"
@@ -29,7 +29,7 @@ pipeline {
             }
             steps {
                 sh """
-                    docker run --rm radleap/hello_there:latest
+                    docker run --rm $DOCKERHUB_CREDS_USR/hello_there:latest
                 """
             }
         }
