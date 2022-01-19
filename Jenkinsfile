@@ -1,11 +1,24 @@
 pipeline {
     agent any
+    environment {
+        DOCKERHUB_CREDS=credentials('dockerhub-credentials')
+    }
     stages {
         stage("build") {
             steps {
                 sh """
-                    docker build -t hello_there .
+                    docker build -t radleap/hello_there:latest .
                 """
+            }
+        }
+        stage('Login') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin'
+            }
+        }
+        stage('Push') {
+            steps {
+                sh 'docker push radleap/hello_there:latest'
             }
         }
         stage("run") {
@@ -16,9 +29,14 @@ pipeline {
             }
             steps {
                 sh """
-                    docker run --rm hello_there
+                    docker run --rm radleap/hello_there:latest
                 """
             }
         }
     }
+    	post {
+            always {
+                sh 'docker logout'
+            }
+	}
 }
